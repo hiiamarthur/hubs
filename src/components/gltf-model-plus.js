@@ -747,6 +747,7 @@ AFRAME.registerComponent("gltf-model-plus", {
   },
 
   update() {
+    console.log("gltf-model-plus update,",this.data.src);
     this.applySrc(resolveAsset(this.data.src), this.data.contentType);
   },
 

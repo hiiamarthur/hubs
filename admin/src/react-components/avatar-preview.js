@@ -62,7 +62,8 @@ function fitBoxInFrustum(camera, box, center, margin = DEFAULT_MARGIN) {
 class AvatarPreview extends Component {
   static propTypes = {
     avatarGltfUrl: PropTypes.string,
-    className: PropTypes.string
+    className: PropTypes.string,
+    record: PropTypes.object,
   };
   constructor(props) {
     super(props);
@@ -72,6 +73,7 @@ class AvatarPreview extends Component {
   }
 
   componentDidMount = () => {
+    console.log("AvatarPreview props",this.props);
     this.scene = new THREE.Scene();
 
     this.camera = new THREE.PerspectiveCamera(55, this.canvas.clientWidth / this.canvas.clientHeight, 0.1, 1000);

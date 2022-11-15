@@ -32,7 +32,7 @@ AFRAME.registerComponent("hud-controller", {
   tick() {
     const hud = this.el.object3D;
     const head = this.data.head.object3DMap.camera;
-
+    console.log("hud-controller,",head,this.data);
     const { offset, lookCutoff, animRange, yawCutoff } = this.data;
 
     const pitch = head.rotation.x * THREE.MathUtils.RAD2DEG;

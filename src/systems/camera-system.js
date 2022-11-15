@@ -1,4 +1,5 @@
 import { waitForDOMContentLoaded } from "../utils/async-utils";
+import { applyPersistentSync } from "../utils/permissions-utils";
 import { childMatch, setMatrixWorld, calculateViewingDistance } from "../utils/three-utils";
 import { paths } from "./userinput/paths";
 import { getBox } from "../utils/auto-box-collider";
@@ -197,11 +198,17 @@ function getAudio(o) {
 const FALLOFF = 0.9;
 export class CameraSystem {
   constructor(camera, renderer) {
+    
+    this.isHeadsetConnected = AFRAME.utils.device.checkHeadsetConnected()
     this.viewingCamera = camera;
+    // this.viewingCamera = this.viewingCamera || document.getElementById("viewing-camera");
     this.lightsEnabled = localStorage.getItem("show-background-while-inspecting") === "true";
+    // const scene = AFRAME.scenes[0];
+    const scene = document.querySelector("a-scene");
     this.verticalDelta = 0;
     this.horizontalDelta = 0;
     this.inspectZoom = 0;
+    this.toggledThirdPerson = false;
     this.mode = CAMERA_MODE_SCENE_PREVIEW;
     this.snapshot = { audioTransform: new THREE.Matrix4(), matrixWorld: new THREE.Matrix4() };
     this.audioSourceTargetTransform = new THREE.Matrix4();
@@ -228,6 +235,10 @@ export class CameraSystem {
         xrCamera.cameras[1].layers.mask |= camera.layers.mask;
       }
     };
+    scene.addEventListener("action_toggle_camera_mode", () => {
+      this.toggleCameraMode()
+      console.log("toggleCameraMode");
+  });
 
     waitForDOMContentLoaded().then(() => {
       this.avatarPOV = document.getElementById("avatar-pov-node");
@@ -241,6 +252,11 @@ export class CameraSystem {
       bg.layers.set(Layers.CAMERA_LAYER_INSPECT);
       this.viewingRig.object3D.add(bg);
     });
+  }
+
+  toggleCameraMode() {
+    this.toggledThirdPerson = !this.toggledThirdPerson
+    // this.toggledThirdPerson = !0
   }
 
   nextMode() {
@@ -425,24 +441,74 @@ export class CameraSystem {
         this.enteredScene = true;
         this.mode = CAMERA_MODE_FIRST_PERSON;
       }
-      this.avatarPOVRotator = this.avatarPOVRotator || this.avatarPOV.components["pitch-yaw-rotator"];
-      this.viewingCameraRotator = this.viewingCameraRotator || this.viewingCamera.el.components["pitch-yaw-rotator"];
-      this.avatarPOVRotator.on = true;
-      this.viewingCameraRotator.on = true;
+      
+      
+      const camera = scene.is("vr-mode") ? scene.renderer.xr.getCamera() : scene.camera,
+            userAgentMatchQuest = navigator.userAgent.match(/Quest/),
+            isVRMode = scene.is("vr-mode");
 
-      this.userinput = this.userinput || scene.systems.userinput;
-      this.interaction = this.interaction || scene.systems.interaction;
-
-      if (this.userinput.get(paths.actions.startInspecting) && this.mode !== CAMERA_MODE_INSPECT) {
-        const hoverEl = this.interaction.state.rightRemote.hovered || this.interaction.state.leftRemote.hovered;
-
-        if (hoverEl) {
-          this.inspect(hoverEl, 1.5);
+       
+        if (!this.isHeadsetConnected && this.toggledThirdPerson && (this.mode === CAMERA_MODE_FIRST_PERSON ? (this.mode = 1, camera.layers.enable(Layers.CAMERA_LAYER_THIRD_PERSON_ONLY)) : 1 === this.mode && (this.mode = CAMERA_MODE_FIRST_PERSON, camera.layers.disable(Layers.CAMERA_LAYER_THIRD_PERSON_ONLY)), this.toggledThirdPerson = false), this.ensureListenerIsParentedCorrectly(scene), this.mode === CAMERA_MODE_FIRST_PERSON) {
+          this.avatarRig.object3D.updateMatrices();
+          setMatrixWorld(this.viewingRig.object3D, this.avatarRig.object3D.matrixWorld);
+          if(scene.is("vr-mode")){
+            this.viewingCamera.updateMatrices(); 
+            setMatrixWorld(this.avatarPOV.object3D, this.viewingCamera.matrixWorld);
+          }else{
+            this.avatarPOV.object3D.updateMatrices();
+            setMatrixWorld(this.viewingCamera, this.avatarPOV.object3D.matrixWorld);
+            console.log("aoao",this.mode);
+          } 
+        }else if (1 === this.mode || 2 === this.mode) {
+          1 === this.mode ? translation.makeTranslation(0, 0.85, 0) : translation.makeTranslation(0, 2, 8);
+          this.avatarRig.object3D.updateMatrices();
+          this.viewingRig.object3D.matrixWorld.copy(this.avatarRig.object3D.matrixWorld).multiply(translation);
+          setMatrixWorld(this.viewingRig.object3D, this.avatarRig.object3D.matrixWorld);
+          this.avatarPOV.object3D.matrixNeedsUpdate = true;
+          this.viewingCamera.position.copy(new THREE.Vector3(0, 0, 0.85));
+          // setMatrixWorld(this.viewingCamera, this.avatarPOV.object3D.matrixWorld);
+          this.viewingCamera.lookAt(this.viewingRig.object3D.position);
+          console.log("bobo",this.mode);
+        
         }
-      } else if (this.mode === CAMERA_MODE_INSPECT && this.userinput.get(paths.actions.stopInspecting)) {
-        scene.emit("uninspect");
-        this.uninspect();
+        else if (this.mode === CAMERA_MODE_INSPECT) {
+          console.log("coco")
+            this.avatarPOVRotator.on = false, this.viewingCameraRotator.on = false;
+            const cameraDelta = this.userinput.get(scene.is("entered") ? paths.actions.cameraDelta : paths.actions.lobbyCameraDelta);
+            if (cameraDelta) {
+                const num1 = (AFRAME.utils.device.isMobile() ? -.6 : 1) * cameraDelta[0] || 0,
+                    num2 = (AFRAME.utils.device.isMobile() ? -1.2 : 1) * cameraDelta[1] || 0;
+                this.horizontalDelta = (this.horizontalDelta + num1) / 2, this.verticalDelta = (this.verticalDelta + num2) / 2
+            } else(Math.abs(this.verticalDelta) > 1e-4 || Math.abs(this.horizontalDelta) > 1e-4) && (this.verticalDelta = .9 * this.verticalDelta, this.horizontalDelta = .9 * this.horizontalDelta);
+            const angle = .001 * this.userinput.get(paths.actions.inspectZoom);
+            angle ? this.inspectZoom = angle + 5 * this.inspectZoom / 6 : Math.abs(this.inspectZoom) > 1e-4 && (this.inspectZoom = .9 * this.inspectZoom);
+            const inspectPanY = this.userinput.get(paths.actions.inspectPanY) || 0;
+            this.userinput.get(paths.actions.resetInspectView) && moveRigSoCameraLooksAtPivot(this.viewingRig.object3D, this.viewingCamera, this.inspectable, this.pivot, 1), this.snapshot.audio && setMatrixWorld(this.snapshot.audio, this.audioSourceTargetTransform), (Math.abs(this.verticalDelta) > .001 || Math.abs(this.horizontalDelta) > .001 || Math.abs(this.inspectZoom) > .001 || Math.abs(inspectPanY) > 1e-4) && applyPersistentSync(this.pivot, this.viewingRig.object3D, this.viewingCamera, this.horizontalDelta, this.verticalDelta, this.inspectZoom, dt, inspectPanY)
+        }
+
+        if (!this.enteredScene && entered && (this.enteredScene = true, this.mode = CAMERA_MODE_FIRST_PERSON, camera.layers.disable(Layers.CAMERA_LAYER_THIRD_PERSON_ONLY), !this.firstEnter)) {
+          if (userAgentMatchQuest || isVRMode) return;
+          this.firstEnter = true;
+          this.mode = 1;
+          camera.layers.enable(Layers.CAMERA_LAYER_THIRD_PERSON_ONLY)
       }
+      this.avatarPOVRotator = this.avatarPOVRotator || this.avatarPOV.components["pitch-yaw-rotator"];
+    this.viewingCameraRotator = this.viewingCameraRotator || this.viewingCamera.el.components["pitch-yaw-rotator"];
+    this.avatarPOVRotator.on = true;
+    this.viewingCameraRotator.on = true;
+
+    this.userinput = this.userinput || scene.systems.userinput;
+    this.interaction = this.interaction || scene.systems.interaction;
+    if (this.userinput.get(paths.actions.startInspecting) && this.mode !== CAMERA_MODE_INSPECT) {
+      const hoverEl = this.interaction.state.rightRemote.hovered || this.interaction.state.leftRemote.hovered;
+
+      if (hoverEl) {
+        this.inspect(hoverEl, 1.5);
+      }
+    } else if (this.mode === CAMERA_MODE_INSPECT && this.userinput.get(paths.actions.stopInspecting)) {
+      scene.emit("uninspect");
+      this.uninspect();
+    }
 
       if (this.userinput.get(paths.actions.nextCameraMode)) {
         this.nextMode();
@@ -461,7 +527,7 @@ export class CameraSystem {
           this.avatarPOV.object3D.updateMatrices();
           setMatrixWorld(this.viewingCamera, this.avatarPOV.object3D.matrixWorld);
         }
-      } else if (this.mode === CAMERA_MODE_THIRD_PERSON_NEAR || this.mode === CAMERA_MODE_THIRD_PERSON_FAR) {
+      } else if (this.mode === CAMERA_MODE_THIRD_PERSON_NEAR || this.mode === CAMERA_MODE_THIRD_PERSON_FAR || this.toggledThirdPerson) {
         if (this.mode === CAMERA_MODE_THIRD_PERSON_NEAR) {
           translation.makeTranslation(0, 1, 3);
         } else {

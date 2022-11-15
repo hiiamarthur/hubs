@@ -61,12 +61,25 @@ export const SCHEMA = {
   definitions: {
     profile: {
       type: "object",
-      additionalProperties: false,
+      additionalProperties: true,
       properties: {
         displayName: { type: "string", pattern: "^[A-Za-z0-9_~ -]{3,32}$" },
         avatarId: { type: "string" },
         // personalAvatarId is obsolete, but we need it here for backwards compatibility.
-        personalAvatarId: { type: "string" }
+        personalAvatarId: { type: "string" },
+        accessory: { type: "string" },
+        earring: { type: "string" },
+        eyebrows: { type: "string" },
+        eyes: { type: "string" },
+        eyewear: { type: "string" },
+        facialHair: { type: "string" },
+        hair: { type: "string" },
+        hands: { type: "string" },
+        head: { type: "string" },
+        headwear: { type: "string" },
+        mouth: { type: "string" },
+        torso: { type: "string" },
+        torsoJacket: { type: "string" },
       }
     },
 
@@ -306,23 +319,27 @@ export default class Store extends EventTarget {
   };
 
   initProfile = async () => {
+    const {displayName,avatarId,...restState} = this.state.profile;
+    console.log("initProfile,",displayName,avatarId,restState, this.state.profile);
     if (this._shouldResetAvatarOnInit) {
       await this.resetToRandomDefaultAvatar();
     } else {
       this.update({
-        profile: { avatarId: await fetchRandomDefaultAvatarId(), ...(this.state.profile || {}) }
+        profile: { avatarId: await fetchRandomDefaultAvatarId(), ...(this.state.profile || {}),...restState }
       });
     }
 
     // Regenerate name to encourage users to change it.
     if (!this.state.activity.hasChangedName) {
-      this.update({ profile: { displayName: generateRandomName() } });
+      this.update({ profile: { displayName: generateRandomName() },...restState });
     }
   };
 
   resetToRandomDefaultAvatar = async () => {
+    const {displayName,avatarId,...restState} = this.state.profile;
+    console.log("resetToRandomDefaultAvatar,",displayName,avatarId,restState, this.state.profile);
     this.update({
-      profile: { ...(this.state.profile || {}), avatarId: await fetchRandomDefaultAvatarId() }
+      profile: { ...(this.state.profile || {}), avatarId: await fetchRandomDefaultAvatarId(),...restState }
     });
   };
 
@@ -398,8 +415,10 @@ export default class Store extends EventTarget {
   }
 
   update(newState, mergeOpts) {
+    
     const finalState = merge({ ...this.state, preferences: this._preferences }, newState, mergeOpts);
     const { valid, errors } = validator.validate(finalState, SCHEMA);
+    console.log("update newState,",newState,mergeOpts,finalState,valid)
 
     // Cleanup unsupported properties
     if (!valid) {

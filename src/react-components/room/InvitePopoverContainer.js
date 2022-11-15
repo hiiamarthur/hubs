@@ -18,11 +18,13 @@ export function InvitePopoverContainer({ hub, hubChannel, scene, ...rest }) {
   useEffect(
     () => {
       function onInviteButtonClicked() {
-        handleExitTo2DInterstitial(true, () => {}).then(() => {
-          popoverApiRef.current.openPopover();
-        });
+        console.log("onInviteButtonCLicked");
+        console.trace("onInviteButtonCLicked");
+        // handleExitTo2DInterstitial(true, () => {}).then(() => {
+        //   popoverApiRef.current.openPopover();
+        // });
       }
-
+      console.log("useEffect ","InvitePopoverButton");
       scene.addEventListener("action_invite", onInviteButtonClicked);
 
       return () => {

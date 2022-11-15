@@ -99,7 +99,9 @@ async function refreshDirectReticulumHostAndPort() {
   const qs = new URLSearchParams(location.search);
   let host = qs.get("phx_host");
   const reticulumMeta = await getReticulumMeta();
-  host = host || configs.RETICULUM_SOCKET_SERVER || reticulumMeta.phx_host;
+  host = configs.RETICULUM_SOCKET_SERVER || host || reticulumMeta.phx_host;
+  // web socket connect not connect to docker internal host
+  // host = host || configs.RETICULUM_SOCKET_SERVER || reticulumMeta.phx_host;
   const port =
     qs.get("phx_port") ||
     (hasReticulumServer() ? new URL(`${document.location.protocol}//${configs.RETICULUM_SERVER}`).port : "443");

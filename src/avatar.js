@@ -63,8 +63,9 @@ class AvatarPage extends React.Component {
 
   setAvatar = e => {
     e && e.preventDefault();
+    const { displayName,avatarId,...restState } = this.props.store.state.profile;
     this.props.store.update({
-      profile: { avatarId: this.state.avatar.avatar_id }
+      profile: { avatarId: this.state.avatar.avatar_id, ...restState }
     });
   };
 
@@ -88,10 +89,10 @@ class AvatarPage extends React.Component {
         </div>
       );
     }
-
+[]
     const selectedAvatarId = this.props.store.state.profile.avatarId;
     const isSelected = avatar.avatar_id === selectedAvatarId;
-
+    console.log("AvatarPage,",avatar);
     return (
       <form onSubmit={this.setAvatar} className={styles.avatarLanding}>
         <div className={classNames([styles.box, styles.darkened])}>

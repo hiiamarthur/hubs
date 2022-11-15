@@ -51,7 +51,7 @@ export default class ProfileEntryPanel extends Component {
   saveStateAndFinish = e => {
     e && e.preventDefault();
 
-    const { displayName } = this.props.store.state.profile;
+    const { displayName,avatarId,...restState } = this.props.store.state.profile;
     const { hasChangedName } = this.props.store.state.activity;
 
     const hasChangedNowOrPreviously = hasChangedName || this.state.displayName !== displayName;
@@ -62,7 +62,8 @@ export default class ProfileEntryPanel extends Component {
       },
       profile: {
         displayName: this.state.displayName,
-        avatarId: this.state.avatarId
+        avatarId: this.state.avatarId,
+        ...restState,
       }
     });
     this.props.finished();

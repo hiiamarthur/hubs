@@ -366,6 +366,7 @@ class AvatarPreview extends Component {
   };
 
   render() {
+    console.log("avatar-preview,",this.props.avatarGltfUrl);
     return (
       <div className={classNames(styles.preview, this.props.className)}>
         {!this.props.avatarGltfUrl ||

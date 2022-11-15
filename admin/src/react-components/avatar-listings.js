@@ -48,7 +48,10 @@ const rowStyle = record => ({
   opacity: record.state === "delisted" ? 0.3 : 1
 });
 
-export const AvatarListingList = props => (
+export const AvatarListingList = props => 
+{
+  console.log("AvatarListingList props",props);
+  return (
   <List {...props} filters={<AvatarListingFilter />} bulkActionButtons={false}>
     <Datagrid rowStyle={rowStyle}>
       <OwnedFileImage
@@ -73,4 +76,4 @@ export const AvatarListingList = props => (
       <EditButton />
     </Datagrid>
   </List>
-);
+)};

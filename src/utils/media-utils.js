@@ -70,7 +70,7 @@ export const upload = (file, desiredContentType) => {
   if (desiredContentType) {
     formData.append("desired_content_type", desiredContentType);
   }
-
+  console.log("upload,",file,desiredContentType);
   // To eliminate the extra hop and avoid proxy timeouts, upload files directly
   // to a reticulum host.
   return fetch(getDirectMediaAPIEndpoint(), {

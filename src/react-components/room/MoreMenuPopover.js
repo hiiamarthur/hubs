@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import classNames from "classnames";
 import styles from "./MoreMenuPopover.scss";
@@ -74,7 +74,7 @@ MoreMenuPopoverContent.propTypes = {
 
 // The MoreMenuContext allows us to control the more menu popover visibility from the MoreMenuPopoverButton
 // and CompactMoreMenuButton.
-const MoreMenuContext = createContext([false, () => {}]);
+export const MoreMenuContext = createContext([false, () => {}]);
 
 export function MoreMenuContextProvider({ initiallyVisible, children }) {
   const context = useState(initiallyVisible || false);
@@ -95,7 +95,9 @@ export function MoreMenuPopoverButton({ menu }) {
   const intl = useIntl();
   const [visible, setVisible] = useContext(MoreMenuContext);
   const title = intl.formatMessage(moreMenuTitle);
-
+  useEffect(() => {
+    console.log("visible on moremenubutton",visible)
+  },[visible])
   return (
     <Popover
       title={title}

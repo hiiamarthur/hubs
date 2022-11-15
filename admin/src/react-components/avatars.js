@@ -56,6 +56,7 @@ const styles = {
 const Preview = withStyles(styles)(({ record, classes, source = "avatar_sid" }) => (
   <AvatarPreview
     className={classes.preview}
+    record={record}
     avatarGltfUrl={getReticulumFetchUrl(`/api/v1/avatars/${record[source]}/avatar.gltf?v=${record.updated_at}`)}
   />
 ));

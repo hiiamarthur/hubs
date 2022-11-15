@@ -42,7 +42,7 @@ function createHTTPSConfig() {
               },
               {
                 type: 2,
-                value: "hubs.local"
+                value: "localhost"
               }
             ]
           }
@@ -184,9 +184,9 @@ async function fetchAppConfigAndEnvironmentVars() {
 
   process.env.RETICULUM_SERVER = host;
   process.env.SHORTLINK_DOMAIN = shortlink_domain;
-  process.env.CORS_PROXY_SERVER = `hubs.local:8080/cors-proxy`;
+  process.env.CORS_PROXY_SERVER = `localhost:8080/cors-proxy`;
   process.env.THUMBNAIL_SERVER = thumbnail_server;
-  process.env.NON_CORS_PROXY_DOMAINS = `${localIp},hubs.local,localhost`;
+  process.env.NON_CORS_PROXY_DOMAINS = `${localIp},localhost,localhost`;
 
   return appConfig;
 }
@@ -246,16 +246,16 @@ module.exports = async (env, argv) => {
     }
 
     if (env.localDev) {
-      const localDevHost = "hubs.local";
+      const localDevHost = "localhost";
       // Local Dev Environment (npm run local)
       Object.assign(process.env, {
         HOST: localDevHost,
-        RETICULUM_SOCKET_SERVER: localDevHost,
+        RETICULUM_SOCKET_SERVER: process.env.RETICULUM_SOCKET_SERVER,
         CORS_PROXY_SERVER: "hubs-proxy.local:4000",
         NON_CORS_PROXY_DOMAINS: `${localDevHost},dev.reticulum.io`,
-        BASE_ASSETS_PATH: `https://${localDevHost}:8080/`,
+        BASE_ASSETS_PATH: `https://localhost:8080/`,
         RETICULUM_SERVER: `${localDevHost}:4000`,
-        POSTGREST_SERVER: "",
+        POSTGREST_SERVER: "http://localhost:3000/",
         ITA_SERVER: "",
         UPLOADS_HOST: `https://${localDevHost}:4000`
       });
@@ -265,7 +265,7 @@ module.exports = async (env, argv) => {
   // In production, the environment variables are defined in CI or loaded from ita and
   // the app config is injected into the head of the page by Reticulum.
 
-  const host = process.env.HOST_IP || env.localDev || env.remoteDev ? "hubs.local" : "localhost";
+  const host = process.env.HOST_IP || env.localDev || env.remoteDev ? "host.docker.internal" : "localhost";
 
   const liveReload = !!process.env.LIVE_RELOAD || false;
 
@@ -345,7 +345,8 @@ module.exports = async (env, argv) => {
       },
       host: "0.0.0.0",
       port: 8080,
-      allowedHosts: [host, "hubs.local"],
+      // port: 4000,
+      allowedHosts: ["all"],
       headers: devServerHeaders,
       hot: liveReload,
       liveReload: liveReload,

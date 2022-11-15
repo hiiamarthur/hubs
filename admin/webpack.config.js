@@ -36,7 +36,7 @@ function createHTTPSConfig() {
               },
               {
                 type: 2,
-                value: "hubs.local"
+                value: "localhost"
               }
             ]
           }
@@ -72,18 +72,18 @@ module.exports = (env, argv) => {
 
   if (env.local) {
     Object.assign(process.env, {
-      HOST: "hubs.local",
-      RETICULUM_SOCKET_SERVER: "hubs.local",
+      HOST: "localhost",
+      RETICULUM_SOCKET_SERVER: "localhost",
       CORS_PROXY_SERVER: "hubs-proxy.local:4000",
-      NON_CORS_PROXY_DOMAINS: "hubs.local,dev.reticulum.io",
-      BASE_ASSETS_PATH: "https://hubs.local:8989/",
-      RETICULUM_SERVER: "hubs.local:4000",
+      NON_CORS_PROXY_DOMAINS: "localhost,dev.reticulum.io",
+      BASE_ASSETS_PATH: "https://localhost:8989/",
+      RETICULUM_SERVER: "localhost:4000",
       POSTGREST_SERVER: "",
       ITA_SERVER: ""
     });
   }
 
-  const defaultHostName = "hubs.local";
+  const defaultHostName = "host.docker.internal";
   const host = process.env.HOST_IP || defaultHostName;
 
   return {
@@ -135,7 +135,7 @@ module.exports = (env, argv) => {
       },
       host: process.env.HOST_IP || "0.0.0.0",
       port: process.env.PORT || "8989",
-      allowedHosts: [host],
+      allowedHosts: "all",
       headers: {
         "Access-Control-Allow-Origin": "*"
       },

@@ -17,6 +17,7 @@ const copiedLabelMessage = defineMessage({
 });
 
 export function CopyableTextInputField({ buttonPreset, ...rest }) {
+  console.log("CopyableTextInputField 1",this);
   const clipboard = useClipboard({
     copiedTimeout: 600
   });

@@ -339,8 +339,9 @@ class AvatarEditor extends Component {
       const avatarResult = this.state.baseAvatarResults.find(a => a.id === baseSid);
       if (avatarResult) return avatarResult.gltfs.avatar;
     }
-
-    return this.inputFiles.glb ? URL.createObjectURL(this.inputFiles.glb) : this.state.avatar.base_gltf_url;
+    let a= URL.createObjectURL(this.inputFiles.glb);
+    console.log("getPreviewUrl,",this.inputFiles.glb,a,this.state.avatar.base_gltf_url)
+    return this.inputFiles.glb ? a : this.state.avatar.base_gltf_url;
   };
 
   selectListingField = (propName, placeholder) => (
@@ -350,6 +351,7 @@ class AvatarEditor extends Component {
         id={`avatar-${propName}`}
         value={this.state.avatar[propName] || ""}
         onChange={async e => {
+          console.log("selectListingField e",e);
           const sid = e.target.value;
           this.setState({ avatar: { ...this.state.avatar, [propName]: sid }, previewGltfUrl: this.getPreviewUrl(sid) });
         }}
@@ -398,7 +400,9 @@ class AvatarEditor extends Component {
         type="file"
         accept="model/gltf+binary,.glb"
         onChange={e => {
+          
           const file = e.target.files[0];
+          console.log("selectlistinggrid,state",e.target,e.target.value,e.target.files[0],this.state);
           e.target.value = null;
           this.inputFiles["glb"] = file;
           URL.revokeObjectURL(this.state.avatar.files["glb"]);
@@ -413,6 +417,7 @@ class AvatarEditor extends Component {
             },
             previewGltfUrl: this.getPreviewUrl("")
           });
+          
         }}
       />
       <label

@@ -36,10 +36,10 @@ export function PeopleMenuButton(props) {
     <ContentMenuButton {...props}>
       <PeopleIcon />
       <span>
-        <FormattedMessage
+        <FormattedMessage 
           id="content-menu.people-menu-button"
           defaultMessage="People ({presenceCount})"
-          values={{ presenceCount: props.presencecount }}
+          values={{ hub_local: props.presencecount }}
         />
       </span>
     </ContentMenuButton>
@@ -48,6 +48,21 @@ export function PeopleMenuButton(props) {
 PeopleMenuButton.propTypes = {
   presencecount: PropTypes.number
 };
+
+export function CameraButton(props) {
+  return (
+    <ContentMenuButton {...props}>
+      <ObjectsIcon />
+      <span>
+        <FormattedMessage 
+          id="content-menu.camera-button"
+          defaultMessage="Camera"
+          // values={{ hub_local: props.Mode }}
+        />
+      </span>
+    </ContentMenuButton>
+  );
+}
 
 export function ContentMenu({ children }) {
   return <div className={styles.contentMenu}>{joinChildren(children, () => <div className={styles.separator} />)}</div>;

@@ -1,0 +1,16 @@
+FROM arm64v8/node:18-alpine
+
+WORKDIR /
+
+COPY ../ ./
+
+WORKDIR ./admin
+
+# COPY package.json package-lock.json ./
+
+
+RUN npm install
+
+EXPOSE 8989
+
+CMD ["npm", "run","local"]

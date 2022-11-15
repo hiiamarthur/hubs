@@ -48,9 +48,11 @@ import { RoomEntryModal } from "./room/RoomEntryModal";
 import { EnterOnDeviceModal } from "./room/EnterOnDeviceModal";
 import { MicSetupModalContainer } from "./room/MicSetupModalContainer";
 import { InvitePopoverContainer } from "./room/InvitePopoverContainer";
+import { CustAvatarPopoverContainer } from "./room/CustAvatarPopoverContainer";
+import { CustAvatarPopoverButton,CustAvatarContextProvider } from "./room/CustAvatarPopover";
 import { MoreMenuPopoverButton, CompactMoreMenuButton, MoreMenuContextProvider } from "./room/MoreMenuPopover";
 import { ChatSidebarContainer, ChatContextProvider, ChatToolbarButtonContainer } from "./room/ChatSidebarContainer";
-import { ContentMenu, PeopleMenuButton, ObjectsMenuButton } from "./room/ContentMenu";
+import { ContentMenu, PeopleMenuButton, ObjectsMenuButton, CameraButton } from "./room/ContentMenu";
 import { ReactComponent as CameraIcon } from "./icons/Camera.svg";
 import { ReactComponent as AvatarIcon } from "./icons/Avatar.svg";
 import { ReactComponent as AddIcon } from "./icons/Add.svg";
@@ -473,6 +475,11 @@ class UIRoot extends Component {
   onShareVideoFailed = () => {
     this.setState({ showVideoShareFailed: true });
   };
+
+  toggleCamera = () => {
+
+    this.props.scene.emit("action_toggle_camera_mode");
+  }
 
   shareVideo = mediaSource => {
     this.props.scene.emit(`action_share_${mediaSource}`);
@@ -1167,6 +1174,12 @@ class UIRoot extends Component {
               icon: InviteIcon,
               onClick: () => this.props.scene.emit("action_invite")
             },
+          // {
+          //   id: "invite",
+          //   label: <FormattedMessage id="more-menu.invite" defaultMessage="Invite" />,
+          //   icon: InviteIcon,
+          //   onClick: () => this.props.scene.emit("action_cust_avatar")
+          // },
           this.isFavorited()
             ? {
                 id: "unfavorite-room",
@@ -1368,6 +1381,12 @@ class UIRoot extends Component {
                           onClick={() => this.toggleSidebar("people")}
                           presencecount={this.state.presenceCount}
                         />
+                        { entered &&(
+                        <CameraButton
+                        // active={this.state.sidebarId === "people"}
+                          onClick={() => this.toggleCamera()}
+                          // presencecount={this.state.presenceCount}
+                        />)}
                       </ContentMenu>
                     )}
                     {!entered && !streaming && !isMobile && streamerName && <SpectatingLabel name={streamerName} />}
@@ -1598,6 +1617,21 @@ class UIRoot extends Component {
                       />
                     )}
                     <MoreMenuPopoverButton menu={moreMenu} />
+                    {/* <CustAvatarPopoverContainer
+                      hub={this.props.hub}
+                      // hubChannel={this.props.hubChannel}
+                      scene={this.props.scene}
+                      // room={this.props.hub}
+                      // accountId={this.props.sessionId}
+                      hubChannel={this.props.hubChannel}
+                      // onClose={() => this.setSidebar(null)}
+                      // onChangeScene={this.onChangeScene}
+                    /> */}
+                    <CustAvatarContextProvider>
+                      <ReactAudioContext.Provider>
+                        <CustAvatarPopoverButton store={this.props.store}/>
+                      </ReactAudioContext.Provider>
+                    </CustAvatarContextProvider>
                   </>
                 }
               />

@@ -10,6 +10,7 @@ import { InviteLinkInputField } from "./InviteLinkInputField";
 import { FormattedMessage, defineMessage, useIntl } from "react-intl";
 
 function InvitePopoverContent({ url, embed, inviteRequired, fetchingInvite, inviteUrl, revokeInvite }) {
+  console.log("InvitePopoverContent");
   return (
     <Column center padding grow gap="lg" className={styles.invitePopover}>
       {inviteRequired ? (
@@ -61,7 +62,7 @@ export function InvitePopoverButton({
 }) {
   const intl = useIntl();
   const title = intl.formatMessage(invitePopoverTitle);
-
+  console.log("InvitePopoverButton")
   return (
     <Popover
       title={title}

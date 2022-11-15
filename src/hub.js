@@ -590,7 +590,9 @@ function handleHubChannelJoined(entryManager, hubChannel, messageDispatch, data,
 
   scene.setAttribute("networked-scene", {
     room: hub.hub_id,
-    serverURL: `wss://${hub.host}:${hub.port}`, // TODO: This is confusing because this is the dialog host and port.
+    
+    // serverURL: `wss://${hub.host}:${hub.port}`, // TODO: This is confusing because this is the dialog host and port.
+    serverURL: "wss://host.docker.internal:4443",
     debug: !!isDebug,
     adapter: "phoenix"
   });
@@ -606,10 +608,12 @@ function handleHubChannelJoined(entryManager, hubChannel, messageDispatch, data,
       // Disconnect in case this is a re-entry
       APP.dialog.disconnect();
       APP.dialog.connect({
-        serverUrl: `wss://${hub.host}:${hub.port}`,
+        // serverUrl: `wss://${hub.host}:${hub.port}`,
+        serverUrl: "wss://host.docker.internal:4443",
         roomId: hub.hub_id,
         joinToken: permsToken,
-        serverParams: { host: hub.host, port: hub.port, turn: hub.turn },
+        // serverParams: { host: hub.host, port: hub.port, turn: hub.turn },
+        serverParams: { host: "host.docker.internal", port: 4443, turn: hub.turn },
         scene,
         clientId: data.session_id,
         forceTcp: qs.get("force_tcp"),
