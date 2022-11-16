@@ -1,0 +1,12 @@
+{
+  "private": true,
+  "scripts": {
+    "gen-thumbnails": "node -r esm generate-thumbnails.js"
+  },
+  "dependencies": {
+    "esm": "^3.2.25",
+    "prompt-sync": "^4.2.0",
+    "puppeteer": "^14.1.1",
+    "yargs": "^16.2.0"
+  }
+}
