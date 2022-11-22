@@ -35,6 +35,8 @@ import { sceneApproveNew, sceneApproveExisting, sceneReviewed } from "./scene-ac
 import { avatarApproveNew, avatarApproveExisting, avatarReviewed } from "./avatar-actions";
 import withCommonStyles from "../utils/with-common-styles";
 import configs from "../utils/configs";
+// import https from 'https';
+import fetch from 'node-fetch';
 
 const RESULTS = {
   pending: "pending",
@@ -43,6 +45,12 @@ const RESULTS = {
   existing_listing: "existing_listing",
   failed: "failed"
 };
+
+// const skipAuthHttpsAgent = new https.Agent({
+//   rejectUnauthorized: false,
+// });
+
+
 
 const styles = withCommonStyles(() => ({}));
 
@@ -155,6 +163,7 @@ class ImportContentComponent extends Component {
 
       if (url.endsWith(".pack")) {
         const res = await fetch(`https://${configs.CORS_PROXY_SERVER}/${url}`);
+        // const res = await fetch(`https://${configs.CORS_PROXY_SERVER}/${url}`,{agent: skipAuthHttpsAgent});
         const packUrls = (await res.text()).split("\n");
         for (const u of packUrls) {
           if (u.trim() !== "") {
@@ -177,8 +186,8 @@ class ImportContentComponent extends Component {
       const isAvatar = !isScene;
 
       if (!importUrl) continue;
-
       const res = await fetch(`https://${configs.CORS_PROXY_SERVER}/${importUrl}`);
+      // const res = await fetch(`https://${configs.CORS_PROXY_SERVER}/${importUrl}`,{agent: skipAuthHttpsAgent});
       const type = isScene ? "scenes" : "avatars";
       const asset = (await res.json())[type][0];
       const isDefault = (isScene && needsDefaultScene) || (isAvatar && needsDefaultAvatar);

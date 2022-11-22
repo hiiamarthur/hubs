@@ -8,6 +8,8 @@ COPY package.json package-lock.json ./
 #for hubs
 RUN apk upgrade \
     && apk add --no-cache bash git openssh 
+# RUN mkdir -p .git
+# RUN npm cache clean --force
 RUN npm install 
 # RUN cd node_modules
 RUN git clone https://github.com/MozillaReality/lib-hubs.git 
@@ -15,12 +17,12 @@ RUN git clone https://github.com/MozillaReality/lib-hubs.git
 
 RUN mv ./lib-hubs ./node_modules
 
-#for admin
-# RUN cd ..
+# #for admin
+# # RUN cd ..
 RUN cd admin && npm install
-# RUN npm run local
+# # RUN npm run local
 
 EXPOSE 8080 8989
-
+# CMD ["bash"]
 # USER node
 # CMD ["/bin/sh", "./scripts/docker/entrypoint.sh"]
